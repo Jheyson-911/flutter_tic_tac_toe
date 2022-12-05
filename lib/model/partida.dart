@@ -1,36 +1,36 @@
 class Partida {
-  late int id;
-  late String nombrePartida;
-  late String playerOne;
-  late String playerTwo;
-  late String ganador;
-  late String estado;
+  int? id;
+  String? nombrePartida;
+  String? jugadorUno;
+  String? jugadorDos;
+  String? ganador;
+  String? estado;
 
-  Partida(this.id, this.nombrePartida, this.playerOne, this.playerTwo,
-      this.ganador, this.estado);
+  Partida(
+      {this.id,
+      this.nombrePartida,
+      this.jugadorUno,
+      this.jugadorDos,
+      this.ganador,
+      this.estado});
 
-  Map<String, dynamic> toMap() {
-    return {
-      "id": id,
-      "nombrePartida": nombrePartida,
-      "playerOne": playerOne,
-      "playerTwo": playerTwo,
-      "ganador": ganador,
-      "estado": estado
-    };
+  Partida.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    nombrePartida = json['nombre_partida'];
+    jugadorUno = json['jugador_uno'];
+    jugadorDos = json['jugador_dos'];
+    ganador = json['ganador'];
+    estado = json['estado'];
   }
 
-  Partida.fromObject(dynamic o) {
-    id = o["id"];
-    nombrePartida = o["nombrePartida"];
-    playerOne = o["playerOne"];
-    playerTwo = o["playerTwo"];
-    ganador = o["ganador"];
-    estado = o["estado"];
-    //this.edad = int.tryParse(o["edad"].toString());
-  }
-  @override
-  String toString() {
-    return 'Partida{id: $id, nombrePartida: $nombrePartida, playerOne: $playerOne, playerTwo: $playerTwo, ganador $ganador, estado: $estado}';
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['nombre_partida'] = this.nombrePartida;
+    data['jugador_uno'] = this.jugadorUno;
+    data['jugador_dos'] = this.jugadorDos;
+    data['ganador'] = this.ganador;
+    data['estado'] = this.estado;
+    return data;
   }
 }

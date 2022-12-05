@@ -1,10 +1,10 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_tic_tac_toe/db/db.dart';
 import 'package:flutter_tic_tac_toe/model/partida.dart';
 
-import "package:provider/provider.dart";
+import 'package:http/http.dart' as http;
 
 class GamePage extends StatefulWidget {
   @override
@@ -21,11 +21,14 @@ class _GamePageState extends State<GamePage> {
   late TextEditingController _playerOneController;
   late TextEditingController _playerTwoController;
 
+  late Future<List<Partida>> _listadoPartidas;
+
   @override
   void initState() {
     _playerOneController = TextEditingController(text: "");
     _playerTwoController = TextEditingController(text: "");
     initializeGame();
+    _listadoPartidas = _getPartidas();
     super.initState();
   }
 
@@ -33,6 +36,26 @@ class _GamePageState extends State<GamePage> {
     currentPlayer = PLAYER_X;
     gameEnd = false;
     occupied = ["", "", "", "", "", "", "", "", ""]; //9 empty places
+  }
+
+  Future<List<Partida>> _getPartidas() async {
+    String url = "http://192.168.1.104:3000/api/partidas";
+    final response = await http.get(Uri.parse(url));
+    var responseData = json.decode(response.body);
+
+    List<Partida> partidas = [];
+    for (var item in responseData) {
+      Partida partida = Partida(
+        id: item["id"],
+        nombrePartida: item["nombre_partida"],
+        jugadorUno: item["jugador_uno"],
+        jugadorDos: item["jugador_dos"],
+        ganador: item["ganador"],
+        estado: item["estado"],
+      );
+      partidas.add(partida);
+    }
+    return partidas;
   }
 
   @override
@@ -49,10 +72,35 @@ class _GamePageState extends State<GamePage> {
             //_headerText(),
             _gameContainer(),
             _restartButton(),
+            // FutureBuilder(
+            //   future: _listadoPartidas,
+            //   builder: (context, snapshot) {
+            //     if (snapshot.hasData) {
+            //       return ListView(
+            //         scrollDirection: Axis.horizontal,
+            //         children: _listPartidas(snapshot.data),
+            //       );
+            //     } else if (snapshot.hasError) {
+            //       print(snapshot.error);
+            //       return Text("error");
+            //     }
+            //     return Center(
+            //       child: CircularProgressIndicator(),
+            //     );
+            //   },
+            // )
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _listPartidas(data) {
+    List<Widget> partidas = [];
+    for (var party in data) {
+      partidas.add(Text(party.jugadorUno.toString()));
+    }
+    return partidas;
   }
 
   Widget _inputPlayers() {
@@ -77,16 +125,15 @@ class _GamePageState extends State<GamePage> {
           ElevatedButton(
               style: ElevatedButton.styleFrom(primary: Colors.lightBlue[900]),
               onPressed: () async {
-                // Partida p = new Partida(1, "", _playerOneController.text,
-                //     _playerTwoController.text, "", "");
-                // var api =
-                //     await Provider.of<DB>(context, listen: false).insert(p);
-
-                // var response =
-                //     await Provider.of<DB>(context, listen: false).partidas();
-                // print(api);
-                print(_playerOneController.text);
-                print(_playerTwoController.text);
+                //_getPartidas();
+                final uri = Uri.parse("http://192.168.1.104:3000/api/partidas");
+                final response = await http.get(uri);
+                if (response.statusCode == 200) {
+                  print("Todo salio bien partida registrada");
+                  print(response.body);
+                }
+                // print(_playerOneController.text);
+                // print(_playerTwoController.text);
               },
               child: Text("Comenzar"))
         ],
